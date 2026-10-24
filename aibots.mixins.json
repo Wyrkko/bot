@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.aibots.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ConnectionAccessor",
+    "PlayerListMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
