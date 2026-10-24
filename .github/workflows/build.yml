@@ -17,6 +17,12 @@ jobs:
         with:
           gradle-version: 9.2.0
       - run: gradle build --stacktrace
+      - name: Show repo resources and jar contents
+        run: |
+          echo "=== src/main/resources ==="
+          ls -la src/main/resources || echo "MISSING: src/main/resources"
+          echo "=== jar contents ==="
+          for f in build/libs/*.jar; do echo "--- $f"; unzip -l "$f" | head -40; done
       - uses: actions/upload-artifact@v4
         with:
           name: aibots-mod-jar
