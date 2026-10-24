@@ -16,13 +16,56 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 9.2.0
-      - run: gradle build --stacktrace
-      - name: Show repo resources and jar contents
+
+      - name: Create mod metadata files
         run: |
-          echo "=== src/main/resources ==="
-          ls -la src/main/resources || echo "MISSING: src/main/resources"
+          mkdir -p src/main/resources
+          cat > src/main/resources/fabric.mod.json <<'EOF'
+          {
+            "schemaVersion": 1,
+            "id": "aibots",
+            "version": "${version}",
+            "name": "AI Bots",
+            "description": "Server-side fake players (bots) with commands, mass spawning, kits and settings.",
+            "authors": ["You"],
+            "license": "MIT",
+            "environment": "*",
+            "entrypoints": {
+              "main": ["dev.aibots.AiBotsMod"]
+            },
+            "mixins": ["aibots.mixins.json"],
+            "depends": {
+              "minecraft": "1.21.11",
+              "fabricloader": ">=0.18.2",
+              "fabric-api": "*",
+              "java": ">=21"
+            }
+          }
+          EOF
+          cat > src/main/resources/aibots.mixins.json <<'EOF'
+          {
+            "required": true,
+            "package": "dev.aibots.mixin",
+            "compatibilityLevel": "JAVA_21",
+            "mixins": [
+              "ConnectionAccessor",
+              "PlayerListMixin"
+            ],
+            "injectors": {
+              "defaultRequire": 1
+            }
+          }
+          EOF
+
+      - run: gradle build --stacktrace
+
+      - name: Show source files and jar contents
+        run: |
+          echo "=== java sources ==="
+          find src/main/java -name '*.java'
           echo "=== jar contents ==="
           for f in build/libs/*.jar; do echo "--- $f"; unzip -l "$f" | head -40; done
+
       - uses: actions/upload-artifact@v4
         with:
           name: aibots-mod-jar
